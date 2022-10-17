@@ -177,11 +177,17 @@ def main(args):
     # This main thread will run the object detection, the capture thread is loaded later
 
     # What model to download and load
-    #MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
-    MODEL_NAME = 'ssd_mobilenet_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
+    #Models trained on COCO dataset
+    MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
+    #MODEL_NAME = 'ssd_mobilenet_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
     #MODEL_NAME = 'ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
-    #MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
     #MODEL_NAME = 'faster_rcnn_nas_coco_2018_01_28' # Accurate but heavy
+
+
+    #Models trained on OID dataset
+    #MODEL_NAME = 'ssd_mobilenet_v2_oid_v4_2018_12_12'
+    #MODEL_NAME = 'ssd_resnet101_v1_fpn_shared_box_predictor_oid_512x512_sync_2019_01_20'
+    #MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
 
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     PATH_TO_FROZEN_GRAPH = 'data/' + MODEL_NAME + '/frozen_inference_graph.pb'
@@ -204,7 +210,7 @@ def main(args):
 
     # List of the strings that is used to add correct label for each box.
     PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
-    NUM_CLASSES = 90
+    NUM_CLASSES = 90        # Depends on the dataset, 90 for coco, 601 for OID
 
     # Start the capture thread with the ZED input
     print("Starting the ZED")
@@ -217,14 +223,17 @@ def main(args):
     print("Loading model " + MODEL_NAME)
     detection_graph = tf.Graph()
     with detection_graph.as_default():
-        od_graph_def = tf.GraphDef()
-        with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
+        @tf.function
+        def f(x):
+            return x
+        od_graph_def = f.get_concrete_function(1.).graph.as_graph_def()
+        with tf.io.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
             serialized_graph = fid.read()
             od_graph_def.ParseFromString(serialized_graph)
             tf.import_graph_def(od_graph_def, name='')
 
     # Limit to a maximum of 50% the GPU memory usage taken by TF https://www.tensorflow.org/guide/using_gpu
-    config = tf.ConfigProto()
+    config = tf.compat.v1.ConfigProto()
     config.gpu_options.per_process_gpu_memory_fraction = 0.5
 
     # Loading label map
@@ -235,7 +244,7 @@ def main(args):
 
     # Detection
     with detection_graph.as_default():
-        with tf.Session(config=config, graph=detection_graph) as sess:
+        with tf.compat.v1.Session(config=config, graph=detection_graph) as sess:
             while not exit_signal:
                 # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
                 if new_data:
@@ -256,6 +265,7 @@ def main(args):
                     classes = detection_graph.get_tensor_by_name('detection_classes:0')
                     num_detections = detection_graph.get_tensor_by_name('num_detections:0')
                     # Actual detection.
+                    # Add a boolean to filter the class name: "/m/03wvsk", id: 89, display_name: "hair drier"
                     (boxes, scores, classes, num_detections) = sess.run(
                         [boxes, scores, classes, num_detections],
                         feed_dict={image_tensor: image_np_expanded})
@@ -263,6 +273,7 @@ def main(args):
                     num_detections_ = num_detections.astype(int)[0]
 
                     # Visualization of the results of a detection.
+                    # Comment this part to not display the result
                     image_np = display_objects_distances(
                         image_np,
                         depth_np,
