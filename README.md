@@ -37,14 +37,14 @@ Install [cuDNN](https://developer.nvidia.com/cudnn). Read the [support](https://
 
 ### Tensorflow Object Detection API Installation
 
-Install Tensorflow 1 with GPU support by reading the following [instructions](https://www.tensorflow.org/install/) for your target platform.
+Install Tensorflow with GPU support by reading the following [instructions](https://www.tensorflow.org/install/) for your target platform.
 
 ```bash
 # GPU package for CUDA-enabled GPU cards
-python -m pip install tensorflow==1.15
+pip install tensorflow
 ```
 
-Install Tensorflow Object Detection API by following these [instructions](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md) and download the model repository.
+Install Tensorflow Object Detection API by following these [instructions](https://github.com/tensorflow/models/tree/master/research/object_detection#support-for-tensorflow-2-and-1).
 
 ```bash
 git clone https://github.com/tensorflow/models
