@@ -27,7 +27,7 @@ The 3D Object Detection project depends on the following libraries:
 
 ### ZED SDK Installation
 
-Install the [ZED SDK](https://www.stereolabs.com/developers/release/) and the ZED [Python API](https://www.stereolabs.com/docs/getting-started/python-development/).
+Install the [ZED SDK](https://www.stereolabs.com/developers/release/) and the ZED [Python API](https://www.stereolabs.com/docs/app-development/python/install/).
 
 ### cuDNN Installation
 
@@ -37,17 +37,22 @@ Install [cuDNN](https://developer.nvidia.com/cudnn). Read the [support](https://
 
 ### Tensorflow Object Detection API Installation
 
-Install Tensorflow 1 with GPU support by reading the following [instructions](https://www.tensorflow.org/install/) for your target platform.
+Install Tensorflow with GPU support by reading the following [instructions](https://www.tensorflow.org/install/) for your target platform.
 
 ```bash
 # GPU package for CUDA-enabled GPU cards
-python -m pip install tensorflow==1.15
+pip install tensorflow
 ```
 
-Install Tensorflow Object Detection API by following these [instructions](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/installation.md) and download the model repository.
+Install Tensorflow Object Detection API by following these [instructions](https://github.com/tensorflow/models/tree/master/research/object_detection#support-for-tensorflow-2-and-1) (prefer version 1 since version 2 is not supported yet). 
 
 ```bash
 git clone https://github.com/tensorflow/models
+```
+Pip install should also install the supported version.
+
+```bash
+pip install tensorflow-object-detection-api
 ```
 
 Test that you have correctly installed the Tensorflow Object Detection
@@ -57,7 +62,8 @@ API by running the following command:
 python object_detection/builders/model_builder_test.py
 ```
 
-**Note:** If you get an import error, make sure that tensorflow/models/research/slim directories have been added to PYTHONPATH. This can be done by running the following command:
+**Note:** You may have to change a line in `utils/label_map_util.py`, `tf.gfile.GFile` should be replace by `tf.io.gfile.GFile`.
+If you get an import error, make sure that tensorflow/models/research/slim directories have been added to PYTHONPATH. This can be done by running the following command:
 
 ```bash
 # From tensorflow/models/
@@ -80,7 +86,7 @@ python3 object_detection_zed.py
 
 ## Testing other models
 
-In this example, we're using the computationally efficient MobileNet model for detecting objects. You can change this by updating the [MODEL_NAME](https://github.com/stereolabs/zed-tensorflow/blob/master/object_detection_zed.py#L177) variable and selecting another one from Tensorflow model [zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md). These models will be downloaded and extracted automatically. For example, a ResNet model can used by changing `MODEL_NAME` to :
+In this example, we're using the computationally efficient MobileNet model for detecting objects. You can change this by updating the [MODEL_NAME](https://github.com/stereolabs/zed-tensorflow/blob/master/object_detection_zed.py#L177) variable and selecting another one from Tensorflow model zoo [TF1](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md) and [TF2](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md). These models will be downloaded and extracted automatically. For example, a ResNet model can used by changing `MODEL_NAME` to :
 
 ```python
 # Full model name required
