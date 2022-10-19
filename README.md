@@ -44,10 +44,15 @@ Install Tensorflow with GPU support by reading the following [instructions](http
 pip install tensorflow
 ```
 
-Install Tensorflow Object Detection API by following these [instructions](https://github.com/tensorflow/models/tree/master/research/object_detection#support-for-tensorflow-2-and-1).
+Install Tensorflow Object Detection API by following these [instructions](https://github.com/tensorflow/models/tree/master/research/object_detection#support-for-tensorflow-2-and-1) (prefer version 1 since version 2 is not supported yet). 
 
 ```bash
 git clone https://github.com/tensorflow/models
+```
+Pip install should also install the supported version.
+
+```bash
+pip install tensorflow-object-detection-api
 ```
 
 Test that you have correctly installed the Tensorflow Object Detection
@@ -57,7 +62,8 @@ API by running the following command:
 python object_detection/builders/model_builder_test.py
 ```
 
-**Note:** If you get an import error, make sure that tensorflow/models/research/slim directories have been added to PYTHONPATH. This can be done by running the following command:
+**Note:** You may have to change a line in `utils/label_map_util.py`, `tf.gfile.GFile` should be replace by `tf.io.gfile.GFile`.
+If you get an import error, make sure that tensorflow/models/research/slim directories have been added to PYTHONPATH. This can be done by running the following command:
 
 ```bash
 # From tensorflow/models/
