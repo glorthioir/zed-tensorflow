@@ -80,7 +80,7 @@ python3 object_detection_zed.py
 
 ## Testing other models
 
-In this example, we're using the computationally efficient MobileNet model for detecting objects. You can change this by updating the [MODEL_NAME](https://github.com/stereolabs/zed-tensorflow/blob/master/object_detection_zed.py#L177) variable and selecting another one from Tensorflow model zoo [TF1] (https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md) and [TF2] (https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md). These models will be downloaded and extracted automatically. For example, a ResNet model can used by changing `MODEL_NAME` to :
+In this example, we're using the computationally efficient MobileNet model for detecting objects. You can change this by updating the [MODEL_NAME](https://github.com/stereolabs/zed-tensorflow/blob/master/object_detection_zed.py#L177) variable and selecting another one from Tensorflow model zoo [TF1](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md) and [TF2](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf2_detection_zoo.md). These models will be downloaded and extracted automatically. For example, a ResNet model can used by changing `MODEL_NAME` to :
 
 ```python
 # Full model name required
