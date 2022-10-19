@@ -178,16 +178,18 @@ def main(args):
 
     # What model to download and load
     #Models trained on COCO dataset
-    MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
+    #MODEL_NAME = 'ssd_mobilenet_v1_coco_2018_01_28'
     #MODEL_NAME = 'ssd_mobilenet_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
     #MODEL_NAME = 'ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03'
     #MODEL_NAME = 'faster_rcnn_nas_coco_2018_01_28' # Accurate but heavy
 
+    # COCO dataset tf2
+    #MODEL_NAME = 'centernet_mobilenetv2fpn_512x512_coco17_kpts'
 
     #Models trained on OID dataset
     #MODEL_NAME = 'ssd_mobilenet_v2_oid_v4_2018_12_12'
     #MODEL_NAME = 'ssd_resnet101_v1_fpn_shared_box_predictor_oid_512x512_sync_2019_01_20'
-    #MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
+    MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
 
     # Path to frozen detection graph. This is the actual model that is used for the object detection.
     PATH_TO_FROZEN_GRAPH = 'data/' + MODEL_NAME + '/frozen_inference_graph.pb'
@@ -198,7 +200,8 @@ def main(args):
 
         MODEL_FILE = MODEL_NAME + '.tar.gz'
         MODEL_PATH = 'data/' + MODEL_NAME + '.tar.gz'
-        DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
+        #DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
+        DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/tf2/20210210/'
 
         opener = urllib.request.URLopener()
         opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_PATH)
@@ -208,9 +211,18 @@ def main(args):
             if 'frozen_inference_graph.pb' in file_name:
                 tar_file.extract(file, 'data/')
 
-    # List of the strings that is used to add correct label for each box.
-    PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
-    NUM_CLASSES = 90        # Depends on the dataset, 90 for coco, 601 for OID
+    if MODEL_NAME.find("oid") > -1:
+        if MODEL_NAME == 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28':
+            # Depends on the dataset, 90 for coco, 601 or 545 for OID
+            NUM_CLASSES = 545
+            # List of the strings that is used to add correct label for each box.
+            PATH_TO_LABELS = os.path.join('data', 'oid_bbox_trainable_label_map.pbtxt')
+        else:
+            NUM_CLASSES = 601
+            PATH_TO_LABELS = os.path.join('data', 'oid_v4_label_map.pbtxt')
+    else:
+        PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
+        NUM_CLASSES = 90
 
     # Start the capture thread with the ZED input
     print("Starting the ZED")
