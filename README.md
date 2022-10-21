@@ -124,5 +124,12 @@ This sample uses 2 threads, one for the ZED images capture and one for the Tenso
 
 2. Tensorflow and the ZED SDK uses CUDA GPU computation and therefore requires the use of CUDA contexts. Since we currently can't share the CUDA Context between the ZED and TF, we have to separate the GPU computation. Each CUDA context must therefore have its own thread.
 
-## Support
-If you need assistance go to our Community site at https://community.stereolabs.com/
+## ANA-Xprize use
+To run the script to recognize a `Drill` just go into the directory of the script and run:
+`python object_detection_zed`
+You can add arguments when you call the script, the first one will specify the minimum distance(in meters) within which you want to detect if there is an object, and the second one is to specify the name of the object (by default it is 1m and "Drill").
+For instance:
+`python object_detection_zed 3 Plant`
+will detect if there are plants within 3 meters of the camera range.
+# Note
+The object needs to be in the label map in `data/*_label_map.pbtxt`
