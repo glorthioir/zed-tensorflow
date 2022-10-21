@@ -131,5 +131,5 @@ You can add arguments when you call the script, the first one will specify the m
 For instance:
 `python object_detection_zed 3 Plant`
 will detect if there are plants within 3 meters of the camera range.
-# Note
+#### Note
 The object needs to be in the label map in `data/*_label_map.pbtxt`
