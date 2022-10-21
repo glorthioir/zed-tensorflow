@@ -42,7 +42,7 @@ def load_depth_into_numpy_array(depth):
 lock = Lock()
 width = 704
 height = 416
-confidence = 0.35
+confidence = 0.5
 
 image_np_global = np.zeros([width, height, 3], dtype=np.uint8)
 depth_np_global = np.zeros([width, height, 4], dtype=np.float)
@@ -169,10 +169,66 @@ def display_objects_distances(image_np, depth_np, num_detections, boxes_, classe
     return image_np
 
 
+def objectFilterSignal(objectName, minDistance, image_np, depth_np, num_detections, boxes_, classes_, scores_, category_index):
+
+    research_distance_box = 30
+
+    for i in range(num_detections):
+        if scores_[i] > confidence:
+            box = tuple(boxes_[i].tolist())
+            if classes_[i] in category_index.keys():
+                class_name = category_index[classes_[i]]['name']
+            if class_name == "Drill":
+
+                # Find object distance
+                ymin, xmin, ymax, xmax = box
+                x_center = int(xmin * width + (xmax - xmin) * width * 0.5)
+                y_center = int(ymin * height + (ymax - ymin) * height * 0.5)
+                x_vect = []
+                y_vect = []
+                z_vect = []
+
+                min_y_r = max(int(ymin * height), int(y_center - research_distance_box))
+                min_x_r = max(int(xmin * width), int(x_center - research_distance_box))
+                max_y_r = min(int(ymax * height), int(y_center + research_distance_box))
+                max_x_r = min(int(xmax * width), int(x_center + research_distance_box))
+
+                if min_y_r < 0: min_y_r = 0
+                if min_x_r < 0: min_x_r = 0
+                if max_y_r > height: max_y_r = height
+                if max_x_r > width: max_x_r = width
+
+                for j_ in range(min_y_r, max_y_r):
+                    for i_ in range(min_x_r, max_x_r):
+                        z = depth_np[j_, i_, 2]
+                        if not np.isnan(z) and not np.isinf(z):
+                            x_vect.append(depth_np[j_, i_, 0])
+                            y_vect.append(depth_np[j_, i_, 1])
+                            z_vect.append(z)
+
+                if len(x_vect) > 0:
+                    x = statistics.median(x_vect)
+                    y = statistics.median(y_vect)
+                    z = statistics.median(z_vect)
+                
+                    distance = math.sqrt(x * x + y * y + z * z)
+
+                    if distance < minDistance:
+                        return True
+
+    return False
+
+
 def main(args):
+    objectToDetect = "Drill"
+    minDetection = 1
     svo_filepath = None
     if len(args) > 1:
-        svo_filepath = args[1]
+        minDetection = float(args[1])
+        if len(args) > 2:
+            objectToDetect = args[2]
+            if len(args) > 3:
+                svo_filepath = args[3]
 
     # This main thread will run the object detection, the capture thread is loaded later
 
@@ -283,22 +339,22 @@ def main(args):
                         feed_dict={image_tensor: image_np_expanded})
 
                     num_detections_ = num_detections.astype(int)[0]
+                    scores_ =  np.squeeze(scores)
+                    boxes_ = np.squeeze(boxes)
+                    classes_ = np.squeeze(classes).astype(np.int32)
+                    isObject = objectFilterSignal(objectToDetect, minDetection, image_np, depth_np, num_detections_, boxes_, classes_, scores_, category_index)
+                    if isObject:
+                        print("Drill")
 
                     # Visualization of the results of a detection.
                     # Comment this part to not display the result
-                    image_np = display_objects_distances(
-                        image_np,
-                        depth_np,
-                        num_detections_,
-                        np.squeeze(boxes),
-                        np.squeeze(classes).astype(np.int32),
-                        np.squeeze(scores),
-                        category_index)
 
-                    cv2.imshow('ZED object detection', cv2.resize(image_np, (width, height)))
-                    if cv2.waitKey(10) & 0xFF == ord('q'):
-                        cv2.destroyAllWindows()
-                        exit_signal = True
+                    #image_np = display_objects_distances(image_np, depth_np, num_detections_, boxes_, classes_, scores_, category_index)
+
+                    #cv2.imshow('ZED object detection', cv2.resize(image_np, (width, height)))
+                    #if cv2.waitKey(10) & 0xFF == ord('q'):
+                    #    cv2.destroyAllWindows()
+                    #    exit_signal = True
                 else:
                     sleep(0.01)
 
